@@ -16,10 +16,8 @@ import android.media.Image
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import androidx.camera.core.AspectRatio
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
@@ -33,17 +31,26 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import com.barbenheimer.sign.databinding.ActivityMainBinding
-import com.google.android.gms.tasks.OnFailureListener
-import com.google.android.gms.tasks.OnSuccessListener
 import com.google.common.util.concurrent.ListenableFuture
+import com.google.gson.Gson
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.pose.Pose
 import com.google.mlkit.vision.pose.PoseDetection
 import com.google.mlkit.vision.pose.defaults.PoseDetectorOptions
+import okhttp3.Call
+
+import okhttp3.Callback
+import okhttp3.MediaType
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody
+import okhttp3.Response
 import org.tensorflow.lite.Interpreter
 import org.tensorflow.lite.support.image.TensorImage
 import org.tensorflow.lite.support.tensorbuffer.TensorBuffer
 import java.io.ByteArrayOutputStream
+import java.io.IOException
+import java.lang.reflect.Array.set
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -114,13 +121,26 @@ class MainActivity : AppCompatActivity() {
                             "Pose",
                             "Pose X:" + poseLandmark.position3D.x + "Pose Y:" + poseLandmark.position3D.y + "Pose Z:" + poseLandmark.position3D.z
                         )
+
                     }
+                    transmitPoints(pose)
                     poseArrayList.add(pose)
                 }
             }.addOnFailureListener { TODO("Not yet implemented") }
     }
 
-
+    private fun transmitPoints(pose: Pose){
+        val gson = Gson()
+        val json = gson.toJson(pose)
+        val client = OkHttpClient()
+        val request = Request.Builder()
+            .url("http://localhost:3000/estimate")
+            .post(RequestBody.create(MediaType.parse("application/json"), json))
+            .build()
+        val call  = client.newCall(request)
+        val response = call.execute()
+        Log.d("MODEL RES", "CODE:" + response.code() + "MESSAGE:" + response.message().toString())
+    }
     private fun takePhoto() {}
 
     private fun captureVideo() {}

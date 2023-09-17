@@ -56,6 +56,7 @@ dependencies {
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
     implementation("org.tensorflow:tensorflow-lite-task-vision:0.2.0")
+    implementation("com.google.code.gson:gson:2.8.8")
     //implementation("org.tensorflow:mediapipe:0.9.3")
     //implementation("com.google.mediapipe:hands:0.10.5")
     implementation("com.google.mlkit:pose-detection:18.0.0-beta3")
