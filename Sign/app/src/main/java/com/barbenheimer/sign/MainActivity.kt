@@ -123,7 +123,7 @@ class MainActivity : AppCompatActivity() {
                         )
 
                     }
-                    transmitPoints(pose)
+                    //transmitPoints(pose)
                     poseArrayList.add(pose)
                 }
             }.addOnFailureListener { TODO("Not yet implemented") }
