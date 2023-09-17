@@ -24,7 +24,15 @@
         <androidx.camera.view.PreviewView
             android:id="@+id/viewFinder"
             android:layout_width="292dp"
-            android:layout_height="240dp" />
+            android:layout_height="240dp" >
+
+        <com.barbenheimer.sign.Display
+
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/displayOverlay"/>
+
+        </androidx.camera.view.PreviewView>
     </androidx.cardview.widget.CardView>
 
     <androidx.cardview.widget.CardView
@@ -47,6 +55,9 @@
             android:text="@string/translation"
             android:textColor="@color/primary"
             android:textSize="20sp" />
+
+
+
     </androidx.cardview.widget.CardView>
 
     <Button
