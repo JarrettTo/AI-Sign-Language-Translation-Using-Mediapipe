@@ -2,8 +2,19 @@
     <!-- Base application theme. -->
     <style name="Base.Theme.Sign" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="colorPrimary">@color/primary</item>
+        <item name="android:textViewStyle">@style/InterTextViewStyle</item>
+        <item name="android:buttonStyle">@style/InterButtonStyle</item>
     </style>
+
+    <style name="InterTextViewStyle" parent="android:Widget.TextView">
+        <item name="android:fontFamily">@font/inter_bold</item>
+    </style>
+
+    <style name="InterButtonStyle" parent="android:Widget.Holo.Button">
+        <item name="android:fontFamily">@font/inter_bold</item>
+    </style>
+
 
     <style name="Theme.Sign" parent="Base.Theme.Sign" />
 </resources>
