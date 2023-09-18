@@ -34,12 +34,13 @@ class pose_est:
     def __init__(self):
         self=self
         
-        self.model.add(LSTM(64, return_sequences=True, activation='relu', input_shape=(30,1662)))
-        self.model.add(LSTM(128, return_sequences=True, activation='relu'))
-        self.model.add(LSTM(64, return_sequences=False, activation='relu'))
-        self.model.add(Dense(64, activation='relu'))
-        self.model.add(Dense(32, activation='relu'))
-        self.model.add(Dense(self.actions.shape[0], activation='softmax'))
+        self.model.add(LSTM(64,name="layer1", return_sequences=True, activation='relu', input_shape=(30,132)))
+        self.model.add(LSTM(128, name="layer2",return_sequences=True, activation='relu'))
+        self.model.add(LSTM(64, name="layer3",return_sequences=False, activation='relu'))
+        self.model.add(Dense(64, name="layer4",activation='relu'))
+        self.model.add(Dense(32, name="layer5",activation='relu'))
+        self.model.add(Dense(self.actions.shape[0], name="final",activation='softmax'))
+        self.load_model()
     def mediapipe_detection(self, image, model):
         image = cv2.cvtColor(image,cv2.COLOR_BGR2RGB)
         image.flags.writeable = False
@@ -72,14 +73,34 @@ class pose_est:
             
         return output_frame
 
-    
+    def detect_action_api(self, points):
+        actions = ["hello", "thank you", "i love u"]
+
+        res = self.model.predict(np.expand_dims(points, axis=0))[0]
+        
+        if res[np.argmax(res)] > 0.8:
+            pred = self.actions[np.argmax(res)]
+
+            response_data = {
+                "message": "Pose estimation successful",
+                "pose_data": pred
+            }
+            
+            return response_data
+        else:
+            response_data = {
+                "message": "Pose estimation successful",
+                "pose_data": "N/A"
+            }
+            
+            return response_data
     def detect_action(self):
         self.load_model()
         # 1. New detection variables
         sequence = []
         sentence = []
         predictions = []
-        threshold = 0.5
+        threshold = 0.75
 
         cap = cv2.VideoCapture(1)
         # Set mediapipe model 

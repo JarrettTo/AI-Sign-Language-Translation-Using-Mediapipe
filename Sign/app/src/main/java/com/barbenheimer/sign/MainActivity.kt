@@ -1,5 +1,6 @@
 package com.barbenheimer.sign
-
+import com.android.volley.toolbox.JsonObjectRequest
+import com.android.volley.toolbox.Volley
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
@@ -45,6 +46,8 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody
 import okhttp3.Response
+import org.json.JSONArray
+import org.json.JSONObject
 import org.tensorflow.lite.Interpreter
 import org.tensorflow.lite.support.image.TensorImage
 import org.tensorflow.lite.support.tensorbuffer.TensorBuffer
@@ -68,6 +71,7 @@ class MainActivity : AppCompatActivity() {
     private var recording: Recording? = null
     var bitmap4Save: Bitmap? = null
     var poseArrayList = ArrayList<Pose>()
+    var poseArrayListCache = ArrayList<Pose>()
     var canvas: Canvas? = null
     var mPaint = Paint()
     var isRunning = false
@@ -116,30 +120,90 @@ class MainActivity : AppCompatActivity() {
             .addOnSuccessListener { pose ->
 
                 if (pose != null) {
-                    for (poseLandmark in pose.getAllPoseLandmarks()) {
-                        Log.i(
-                            "Pose",
-                            "Pose X:" + poseLandmark.position3D.x + "Pose Y:" + poseLandmark.position3D.y + "Pose Z:" + poseLandmark.position3D.z
-                        )
 
-                    }
-                    //transmitPoints(pose)
                     poseArrayList.add(pose)
+                    poseArrayListCache.add(pose)
+                    //TODO: figure out why pose estimation has a delay whether or not its cos of hardware or code issue which can affect the real apk
+                    Log.d("SIZE", "SIZE:" + poseArrayListCache.size)
+                    if(poseArrayListCache.size>=30){
+                        transmitPoints();
+                    }
                 }
             }.addOnFailureListener { TODO("Not yet implemented") }
     }
 
-    private fun transmitPoints(pose: Pose){
+
+    private fun transmitPoints(){
+        Log.d("TESTING", "WHAT YHE FUCK")
+        val volleyQueue = Volley.newRequestQueue(this)
+        val last30Elements = poseArrayListCache.subList(poseArrayListCache.size - 30, poseArrayListCache.size)
+        val emptyArray = Array(30) { DoubleArray(132) }
+        var index =0
+        var j = 0
+        //TODO: figure out if poseLandmark coordinates are properly represented in comparison to our training data. By this i mean if the landmarks and their coordinates are arranged in the same way. If landmarks are out of frame, how is it represented? (will there be a gap of 0s in the keypoint matrix or will they just be ignored)
+        for (pose in last30Elements){
+            j=0
+            for (poseLandmark in pose.getAllPoseLandmarks()) {
+                emptyArray[index][j] = poseLandmark.position3D.x.toDouble()
+                emptyArray[index][j+1] = poseLandmark.position3D.y.toDouble()
+                emptyArray[index][j+2] = poseLandmark.position3D.z.toDouble()
+                j+=3
+            }
+            index += 1
+        }
+        val jsonArray = JSONArray()
+
+        // Iterate through the 2D array and add each row to the JSON array
+        for (row in emptyArray) {
+            val jsonRow = JSONArray()
+            for (element in row) {
+                jsonRow.put(element)
+            }
+            jsonArray.put(jsonRow)
+        }
+
+        // Create a JSON object to hold the JSON array
+        val jsonObject = JSONObject()
+        jsonObject.put("data", jsonArray)
+
+        // Print the JSON object
+        println(jsonObject.toString())
         val gson = Gson()
-        val json = gson.toJson(pose)
-        val client = OkHttpClient()
-        val request = Request.Builder()
-            .url("http://localhost:3000/estimate")
-            .post(RequestBody.create(MediaType.parse("application/json"), json))
-            .build()
-        val call  = client.newCall(request)
-        val response = call.execute()
-        Log.d("MODEL RES", "CODE:" + response.code() + "MESSAGE:" + response.message().toString())
+        val json = gson.toJson(emptyArray)
+        val url = "http://10.0.2.2:5000/pose"
+        val jsonObjectRequest = JsonObjectRequest(
+            // we are using GET HTTP request method
+            com.android.volley.Request.Method.POST,
+            // url we want to send the HTTP request to
+            url,
+            // this parameter is used to send a JSON object
+            // to the server, since this is not required in
+            // our case, we are keeping it `null`
+            jsonObject,
+
+            // lambda function for handling the case
+            // when the HTTP request succeeds
+            { response ->
+                // get the image url from the JSON object
+                val msg = response.get("pose_data")
+                //TODO: handle displaying of translations on screen
+                Log.d("RES MSG", "message: " + msg)
+                // load the image into the ImageView using Glide.
+
+            },
+
+            // lambda function for handling the
+            // case when the HTTP request fails
+            { error ->
+                // make a Toast telling the user
+                // that something went wrong
+
+                // log the error message in the error stream
+                Log.e("MainActivity", "loadDogImage error: ${error.localizedMessage}")
+            }
+        )
+        volleyQueue.add(jsonObjectRequest)
+
     }
     private fun takePhoto() {}
 
