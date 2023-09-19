@@ -57,6 +57,15 @@ import java.lang.reflect.Array.set
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import android.os.Bundle
+
+import android.view.View
+
+import android.widget.Button
+
+import android.widget.EditText
+
+import android.widget.TextView
 
 
 class MainActivity : AppCompatActivity() {
@@ -87,15 +96,23 @@ class MainActivity : AppCompatActivity() {
     var PERMISSION_REQUESTS = 1
 
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(viewBinding.root)
+
         display = viewBinding.displayOverlay
         mPaint.setColor(Color.GREEN);
         mPaint.setStyle(Paint.Style.FILL_AND_STROKE);
         mPaint.setStrokeWidth(10F);
         cameraProviderFuture = ProcessCameraProvider.getInstance(this);
+
+        //clear text
+        val clearButton = findViewById<Button>(R.id.clearButton)
+        clearButton.setOnClickListener {
+            clearText(it)
+
 
         // Request camera permissions
 
@@ -113,6 +130,11 @@ class MainActivity : AppCompatActivity() {
         if (!allPermissionsGranted()) {
             getRuntimePermissions();
         }
+    }
+
+    fun clearText(view: View) {
+        val textView = findViewById<TextView>(R.id.translateText)
+        textView.text = ""
     }
 
     var RunMlkit = Runnable {
@@ -339,19 +361,18 @@ class MainActivity : AppCompatActivity() {
     }
 
     companion object {
-        private const val TAG = "Sign"
-        private const val FILENAME_FORMAT = "yyyy-MM-dd-HH-mm-ss-SSS"
+        private const val TAG = "Sign";
+        private const val FILENAME_FORMAT = "yyyy-MM-dd-HH-mm-ss-SSS";
         private val REQUIRED_PERMISSIONS =
-            mutableListOf (
+            listOf(
                 Manifest.permission.CAMERA,
                 Manifest.permission.RECORD_AUDIO
             ).apply {
                 if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
                     add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 }
-            }.toTypedArray()
+            }.toList()
     }
-
 
 
     fun Image.toBitmap(): Bitmap {
