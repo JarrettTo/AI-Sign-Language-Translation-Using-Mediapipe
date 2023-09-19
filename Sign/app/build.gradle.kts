@@ -60,7 +60,7 @@ dependencies {
     implementation("com.android.volley:volley:1.2.1")
     //implementation("org.tensorflow:mediapipe:0.9.3")
     //implementation("com.google.mediapipe:hands:0.10.5")
-    implementation("com.google.mlkit:pose-detection:18.0.0-beta3")
+    implementation("com.google.mediapipe:tasks-vision:latest.release")
     val cameraxVersion = "1.2.3"
     // https://mvnrepository.com/artifact/com.google.mediapipe/solution-core
 
