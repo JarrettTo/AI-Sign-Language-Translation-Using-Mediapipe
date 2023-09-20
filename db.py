@@ -1,5 +1,5 @@
 import mysql.connector
-
+print(mysql.connector.__version__) 
 class Database:
     def __init__(self, host, port, username, password, database):
         self.host = host

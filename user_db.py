@@ -25,6 +25,7 @@ class UserDatabase(Database):
         
         self.execute_query(insert_query, user_data)
         print("New user created successfully")
+        return True
 
     def login(self, username, password):
         if not self.connection or not self.connection.is_connected():
@@ -34,7 +35,7 @@ class UserDatabase(Database):
         select_query = "SELECT hashed_password, salt FROM user WHERE username = %s"
         cursor = self.execute_query(select_query, (username,))
         result = cursor.fetchone()
-
+        print(result)
         if result:
             hashed_password, salt = result
             entered_password = self.hash_password(password, salt)
@@ -51,8 +52,10 @@ class UserDatabase(Database):
     def is_username_taken(self, username):
         cursor = self.execute_query("SELECT COUNT(*) FROM user WHERE username = %s", (username,))
         if cursor:
-            result = cursor.fetchone()  
-            count = result[0]  
+            result = cursor.fetchone()
+            count=0
+            if result:  
+                count = result[0]  
             cursor.close()  
             return count > 0  
         return False 
