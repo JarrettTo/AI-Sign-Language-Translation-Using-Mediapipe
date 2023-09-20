@@ -23,6 +23,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
+import android.widget.Button
 import android.widget.Toast
 import androidx.camera.core.Preview
 import androidx.camera.core.CameraSelector
@@ -60,7 +61,7 @@ class CameraFragment : Fragment(), HandLandmarkerHelper.LandmarkerListener {
 
     private val fragmentCameraBinding
         get() = _fragmentCameraBinding!!
-
+    var transmit = false
     private lateinit var handLandmarkerHelper: HandLandmarkerHelper
     private val viewModel: MainViewModel by activityViewModels()
     private var preview: Preview? = null
@@ -122,7 +123,25 @@ class CameraFragment : Fragment(), HandLandmarkerHelper.LandmarkerListener {
     ): View {
         _fragmentCameraBinding =
             FragmentCameraBinding.inflate(inflater, container, false)
-
+        val recordButton = _fragmentCameraBinding!!.button2
+        recordButton.setOnClickListener{
+            transmit = !transmit
+            if (transmit) {
+                recordButton.text = "stop"
+                recordButton.setBackgroundColor(
+                    ContextCompat.getColor(requireContext(), R.color.mp_color_error)
+                )
+            } else {
+                recordButton.text = "Record"
+                recordButton.setBackgroundColor(
+                    ContextCompat.getColor(requireContext(), R.color.primary)
+                )
+                if(poseArray.size>=30 && !transmit){
+                    transmitPoints()
+                }
+            }
+            Log.d("TRANSMIT", "TRANSMIT" + transmit)
+        }
         return fragmentCameraBinding.root
     }
 
@@ -205,7 +224,10 @@ class CameraFragment : Fragment(), HandLandmarkerHelper.LandmarkerListener {
                 // The analyzer can then be assigned to the instance
                 .also {
                     it.setAnalyzer(backgroundExecutor) { image ->
+
                         detectHand(image)
+
+
                     }
                 }
 
@@ -261,35 +283,36 @@ class CameraFragment : Fragment(), HandLandmarkerHelper.LandmarkerListener {
                 fragmentCameraBinding.overlay.invalidate()
             }
         }
-        for (landmark in resultBundle.results){
-            for( landmark_res in landmark.landmarks()){
-                val floatArray = FloatArray(126)
-                var j=0
-                for ( landmark_coord in landmark_res){
+        if(transmit){
+            for (landmark in resultBundle.results){
+                for( landmark_res in landmark.landmarks()){
+                    val floatArray = FloatArray(126)
+                    var j=0
+                    for ( landmark_coord in landmark_res){
 
-                    Log.d("POSE ESTIMATION", "X:" + landmark_coord.x() + "Y:" + landmark_coord.y() + "Z:" + landmark_coord.z())
-                    floatArray[j] = landmark_coord.x()
-                    floatArray[j+1] = landmark_coord.y()
-                    floatArray[j+2] = landmark_coord.z()
-                    j+=3
+                        Log.d("POSE ESTIMATION", "X:" + landmark_coord.x() + "Y:" + landmark_coord.y() + "Z:" + landmark_coord.z())
+                        floatArray[j] = landmark_coord.x()
+                        floatArray[j+1] = landmark_coord.y()
+                        floatArray[j+2] = landmark_coord.z()
+                        j+=3
+                    }
+                    poseArray.add(floatArray)
+
                 }
-                poseArray.add(floatArray)
-
             }
         }
-        if(poseArray.size>=30){
-            transmitPoints()
-        }
+
+
     }
     private fun transmitPoints(){
         Log.d("TESTING", "WHAT YHE FUCK")
         val volleyQueue = Volley.newRequestQueue(getActivity()?.getApplicationContext())
-        val last30Elements = poseArray.subList(poseArray.size - 30, poseArray.size)
+
 
         val jsonArray = JSONArray()
 
         // Iterate through the 2D array and add each row to the JSON array
-        for (row in last30Elements) {
+        for (row in poseArray) {
             val jsonRow = JSONArray()
             for (element in row) {
                 jsonRow.put(element)
@@ -336,9 +359,7 @@ class CameraFragment : Fragment(), HandLandmarkerHelper.LandmarkerListener {
             }
         )
         volleyQueue.add(jsonObjectRequest)
-        for (i in 0 until poseArray.size-30) {
-            poseArray.removeAt(0)
-        }
+        poseArray.clear()
 
     }
     override fun onError(error: String, errorCode: Int) {
