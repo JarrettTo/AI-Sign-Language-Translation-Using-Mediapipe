@@ -47,18 +47,44 @@ import com.google.mediapipe.tasks.vision.core.RunningMode
 typealias LumaListener = (luma: Double) -> Unit
 
 class CameraFragment : Fragment(), HandLandmarkerHelper.LandmarkerListener {
-    private lateinit var viewBinding: FragmentCameraBinding
+    
     private lateinit var cameraExecutor: ExecutorService
-    private lateinit var safeContext: Context
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        viewBinding = FragmentCameraBinding.inflate(layoutInflater)
-        cameraExecutor = Executors.newSingleThreadExecutor()
+    private var _fragmentCameraBinding: FragmentCameraBinding? = null
+    private lateinit var backgroundExecutor: ExecutorService
+    private val fragmentCameraBinding
+        get() = _fragmentCameraBinding!!
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        _fragmentCameraBinding =
+            FragmentCameraBinding.inflate(inflater, container, false)
+
+        return fragmentCameraBinding.root
+
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        // Initialize our background executor
+        backgroundExecutor = Executors.newSingleThreadExecutor()
+
+        // Wait for the views to be properly laid out
+        fragmentCameraBinding.viewFinder.post {
+            // Set up the camera and its use cases
+            startCamera()
+        }
+
+        // Create the HandLandmarkerHelper that will handle the inference
+    }
+
+
     private fun startCamera() {
-        val cameraProviderFuture = ProcessCameraProvider.getInstance(safeContext)
+        val cameraProviderFuture = ProcessCameraProvider.getInstance(requireContext())
 
         cameraProviderFuture.addListener({
             // Used to bind the lifecycle of cameras to the lifecycle owner
@@ -68,7 +94,7 @@ class CameraFragment : Fragment(), HandLandmarkerHelper.LandmarkerListener {
             val preview = Preview.Builder()
                 .build()
                 .also {
-                    it.setSurfaceProvider(viewBinding.viewFinder.surfaceProvider)
+                    it.setSurfaceProvider(_fragmentCameraBinding?.viewFinder?.surfaceProvider)
                 }
 
             // Select back camera as a default
@@ -86,16 +112,10 @@ class CameraFragment : Fragment(), HandLandmarkerHelper.LandmarkerListener {
                 Log.e(TAG, "Use case binding failed", exc)
             }
 
-        }, ContextCompat.getMainExecutor(safeContext))
+        }, ContextCompat.getMainExecutor(requireContext()))
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        return inflater.inflate(R.layout.fragment_camera, container, false)
-    }
+
 
 
 
