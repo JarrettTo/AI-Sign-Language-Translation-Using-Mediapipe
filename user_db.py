@@ -7,6 +7,7 @@ from datetime import datetime
 class UserDatabase(Database):
     def __init__(self, host, port, username, password, database):
         super().__init__(host, port, username, password, database)
+        
 
     def signup(self, username, password):
         if not self.connection or not self.connection.is_connected():
