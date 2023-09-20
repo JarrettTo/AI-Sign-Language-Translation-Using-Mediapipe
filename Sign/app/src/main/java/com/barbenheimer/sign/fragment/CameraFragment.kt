@@ -26,6 +26,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.camera.core.Camera
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.ImageProxy
@@ -47,13 +48,36 @@ import com.google.mediapipe.tasks.vision.core.RunningMode
 typealias LumaListener = (luma: Double) -> Unit
 
 class CameraFragment : Fragment(), HandLandmarkerHelper.LandmarkerListener {
+    private var preview: Preview? = null
     private lateinit var viewBinding: FragmentCameraBinding
     private lateinit var cameraExecutor: ExecutorService
     private lateinit var safeContext: Context
+    private var camera: Camera? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        viewBinding = FragmentCameraBinding.inflate(layoutInflater)
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        safeContext = context
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        return inflater.inflate(R.layout.fragment_camera, container, false)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        // Request camera permissions
+        if (allPermissionsGranted()) {
+            startCamera()
+        } else {
+            ActivityCompat.requestPermissions(requireActivity(), REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS)
+        }
+
         cameraExecutor = Executors.newSingleThreadExecutor()
     }
 
@@ -65,13 +89,9 @@ class CameraFragment : Fragment(), HandLandmarkerHelper.LandmarkerListener {
             val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
 
             // Preview
-            val preview = Preview.Builder()
-                .build()
-                .also {
-                    it.setSurfaceProvider(viewBinding.viewFinder.surfaceProvider)
-                }
+            preview = Preview.Builder().build()
 
-            // Select back camera as a default
+            // Select front camera as a default
             val cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA
 
             try {
@@ -79,7 +99,7 @@ class CameraFragment : Fragment(), HandLandmarkerHelper.LandmarkerListener {
                 cameraProvider.unbindAll()
 
                 // Bind use cases to camera
-                cameraProvider.bindToLifecycle(
+                camera = cameraProvider.bindToLifecycle(
                     this, cameraSelector, preview)
 
             } catch(exc: Exception) {
@@ -89,13 +109,7 @@ class CameraFragment : Fragment(), HandLandmarkerHelper.LandmarkerListener {
         }, ContextCompat.getMainExecutor(safeContext))
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        return inflater.inflate(R.layout.fragment_camera, container, false)
-    }
+
 
 
 
@@ -104,18 +118,28 @@ class CameraFragment : Fragment(), HandLandmarkerHelper.LandmarkerListener {
         cameraExecutor.shutdown()
     }
 
+    private fun allPermissionsGranted() = REQUIRED_PERMISSIONS.all {
+        ContextCompat.checkSelfPermission(safeContext, it) == PackageManager.PERMISSION_GRANTED
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        if (requestCode == REQUEST_CODE_PERMISSIONS) {
+            if (allPermissionsGranted()) {
+                startCamera()
+            } else {
+                Toast.makeText(safeContext, "Permissions not granted by the user.", Toast.LENGTH_SHORT).show()
+//                finish()
+            }
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+    }
+
     companion object {
-        private const val TAG = "CameraXApp"
+        val TAG = "CameraXFragment"
         private const val FILENAME_FORMAT = "yyyy-MM-dd-HH-mm-ss-SSS"
-        private val REQUIRED_PERMISSIONS =
-            mutableListOf (
-                Manifest.permission.CAMERA,
-                Manifest.permission.RECORD_AUDIO
-            ).apply {
-                if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
-                    add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                }
-            }.toTypedArray()
+        internal const val REQUEST_CODE_PERMISSIONS = 10
+        private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
+        var isOffline = false // prevent app crash when goes offline
     }
 
 //    private val activityResultLauncher =
