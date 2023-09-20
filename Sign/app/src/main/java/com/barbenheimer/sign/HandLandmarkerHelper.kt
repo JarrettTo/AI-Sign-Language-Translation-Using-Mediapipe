@@ -1,5 +1,5 @@
 
-package com.google.mediapipe.examples.handlandmarker
+package com.barbenheimer.sign
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -58,14 +58,8 @@ class HandLandmarkerHelper(
         val baseOptionBuilder = BaseOptions.builder()
 
         // Use the specified hardware for running the model. Default to CPU
-        when (currentDelegate) {
-            DELEGATE_CPU -> {
-                baseOptionBuilder.setDelegate(Delegate.CPU)
-            }
-            DELEGATE_GPU -> {
-                baseOptionBuilder.setDelegate(Delegate.GPU)
-            }
-        }
+        baseOptionBuilder.setDelegate(Delegate.CPU)
+
 
         baseOptionBuilder.setModelAssetPath(MP_HAND_LANDMARKER_TASK)
 

@@ -3,7 +3,7 @@
 package com.barbenheimer.sign
 
 import androidx.lifecycle.ViewModel
-import com.google.mediapipe.examples.handlandmarker.HandLandmarkerHelper
+//import com.google.mediapipe.examples.handlandmarker.HandLandmarkerHelper
 
 /**
  *  This ViewModel is used to store hand landmarker helper settings

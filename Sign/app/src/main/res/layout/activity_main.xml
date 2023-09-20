@@ -10,8 +10,8 @@
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cardView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="292dp"
+        android:layout_height="312dp"
         android:layout_marginStart="100dp"
         android:layout_marginTop="86dp"
         android:layout_marginEnd="100dp"
@@ -22,15 +22,11 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <androidx.fragment.app.FragmentContainerView
-            android:id="@+id/fragment_container"
-            android:name="androidx.navigation.fragment.NavHostFragment"
+            android:id="@+id/camera_fragment"
+            android:name="com.barbenheimer.sign.fragment.CameraFragment"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginTop="?android:attr/actionBarSize"
-            android:background="@android:color/transparent"
-            android:keepScreenOn="true"
-            app:defaultNavHost="true"
-            tools:context=".MainActivity" />
+            android:layout_height="match_parent" />
+
     </androidx.cardview.widget.CardView>
 
     <androidx.cardview.widget.CardView
@@ -77,5 +73,6 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         app:layout_constraintGuide_begin="196dp" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
