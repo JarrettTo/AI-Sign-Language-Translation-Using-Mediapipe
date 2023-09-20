@@ -24,17 +24,17 @@ class pose_est:
     actions = np.array(['hello', 'thanks', 'iloveyou'])
 
     # Thirty videos worth of data
-    no_sequences = 30
+    no_sequences = 40
 
     # Videos are going to be 30 frames in length
     sequence_length = 30
 
     # Folder start
-    start_folder = 30
+    start_folder = 40
     def __init__(self):
         self=self
         
-        self.model.add(LSTM(64,name="layer1", return_sequences=True, activation='relu', input_shape=(30,132)))
+        self.model.add(LSTM(64,name="layer1", return_sequences=True, activation='relu', input_shape=(30,126)))
         self.model.add(LSTM(128, name="layer2",return_sequences=True, activation='relu'))
         self.model.add(LSTM(64, name="layer3",return_sequences=False, activation='relu'))
         self.model.add(Dense(64, name="layer4",activation='relu'))
@@ -63,7 +63,7 @@ class pose_est:
         return np.concatenate([pose, face, lh, rh])
 
     def load_model(self):
-        self.model.load_weights('action.h5')
+        self.model.load_weights('best_model.h5')
 
     def prob_viz(self,res, actions, input_frame, colors):
         output_frame = input_frame.copy()

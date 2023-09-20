@@ -283,7 +283,7 @@ class CameraFragment : Fragment(), HandLandmarkerHelper.LandmarkerListener {
     }
     private fun transmitPoints(){
         Log.d("TESTING", "WHAT YHE FUCK")
-        val volleyQueue = Volley.newRequestQueue(requireContext())
+        val volleyQueue = Volley.newRequestQueue(getActivity()?.getApplicationContext())
         val last30Elements = poseArray.subList(poseArray.size - 30, poseArray.size)
 
         val jsonArray = JSONArray()
@@ -303,7 +303,7 @@ class CameraFragment : Fragment(), HandLandmarkerHelper.LandmarkerListener {
 
         // Print the JSON object
         println(jsonObject.toString())
-        val url = "http://10.0.2.2:5000/pose"
+        val url = "http://127.0.0.1:5000/pose"
         val jsonObjectRequest = JsonObjectRequest(
             // we are using GET HTTP request method
             Request.Method.POST,
@@ -332,7 +332,7 @@ class CameraFragment : Fragment(), HandLandmarkerHelper.LandmarkerListener {
                 // that something went wrong
 
                 // log the error message in the error stream
-                Log.e("MainActivity", "loadDogImage error: ${error.localizedMessage}")
+                Log.e("MainActivity", "loadDogImage error: ${error.message}")
             }
         )
         volleyQueue.add(jsonObjectRequest)
