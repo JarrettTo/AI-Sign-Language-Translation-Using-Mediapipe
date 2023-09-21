@@ -21,7 +21,7 @@ class pose_est:
     model = Sequential()
     colors = [(245,117,16), (117,245,16), (16,117,245)]
     # Actions that we try to detect
-    actions = np.array(['hello', 'thanks', 'iloveyou'])
+    actions = np.array(["hello", "what's wrong?", "one", "none"])
 
     # Thirty videos worth of data
     no_sequences = 40
@@ -74,26 +74,33 @@ class pose_est:
         return output_frame
 
     def detect_action_api(self, points):
-        actions = ["hello", "thank you", "i love u"]
+        actions = ["hello", "whats wrong", "one", "none"]
+        try:
+            res = self.model.predict(np.expand_dims(points, axis=0))[0]
+            if res[np.argmax(res)] > 0.8:
+                pred = self.actions[np.argmax(res)]
+                
+                response_data = {
+                    "message": "Pose estimation successful",
+                    "pose_data": pred
+                }
+                
+                return response_data
+            else:
+                response_data = {
+                    "message": "Pose estimation successful",
+                    "pose_data": "N/A"
+                }
+                
+                return response_data
+        except:
+            response_data = {
+                    "message": "Pose estimation unsuccessful",
+                    "pose_data": "N/A"
+                }
+            return response_data
 
-        res = self.model.predict(np.expand_dims(points, axis=0))[0]
         
-        if res[np.argmax(res)] > 0.8:
-            pred = self.actions[np.argmax(res)]
-
-            response_data = {
-                "message": "Pose estimation successful",
-                "pose_data": pred
-            }
-            
-            return response_data
-        else:
-            response_data = {
-                "message": "Pose estimation successful",
-                "pose_data": "N/A"
-            }
-            
-            return response_data
     def detect_action(self):
         self.load_model()
         # 1. New detection variables
