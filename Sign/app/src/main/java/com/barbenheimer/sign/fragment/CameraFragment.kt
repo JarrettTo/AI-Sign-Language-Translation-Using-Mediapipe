@@ -297,7 +297,7 @@ class CameraFragment : Fragment(), HandLandmarkerHelper.LandmarkerListener {
                 //TODO: handle displaying of translations on screen
                 Log.d("RES MSG", "message: $msg")
                 translatedString = msg.toString()
-                val textView = activity?.findViewById<TextView>(R.id.translation)
+                val textView = activity?.findViewById<TextView>(R.id.translateText)
                 textView?.text = msg.toString()
                 // load the image into the ImageView using Glide.
 
