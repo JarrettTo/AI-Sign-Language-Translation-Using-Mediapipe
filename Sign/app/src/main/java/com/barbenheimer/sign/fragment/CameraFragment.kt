@@ -11,6 +11,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.camera.core.AspectRatio
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
@@ -56,6 +57,8 @@ class CameraFragment : Fragment(), HandLandmarkerHelper.LandmarkerListener {
     private var cameraProvider: ProcessCameraProvider? = null
     private var cameraFacing = CameraSelector.LENS_FACING_BACK
     private var poseArray : ArrayList<FloatArray> = ArrayList()
+    private var translatedString: String? = null
+
 
     override fun onResume() {
         super.onResume()
@@ -134,7 +137,6 @@ class CameraFragment : Fragment(), HandLandmarkerHelper.LandmarkerListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         // Initialize our background executor
         backgroundExecutor = Executors.newSingleThreadExecutor()
 
@@ -259,7 +261,6 @@ class CameraFragment : Fragment(), HandLandmarkerHelper.LandmarkerListener {
         Log.d("TESTING", "WHAT YHE FUCK")
         val volleyQueue = Volley.newRequestQueue(getActivity()?.getApplicationContext())
 
-
         val jsonArray = JSONArray()
 
         // Iterate through the 2D array and add each row to the JSON array
@@ -294,7 +295,10 @@ class CameraFragment : Fragment(), HandLandmarkerHelper.LandmarkerListener {
                 // get the image url from the JSON object
                 val msg = response.get("pose_data")
                 //TODO: handle displaying of translations on screen
-                Log.d("RES MSG", "message: " + msg)
+                Log.d("RES MSG", "message: $msg")
+                translatedString = msg.toString()
+                val textView = activity?.findViewById<TextView>(R.id.translation)
+                textView?.text = msg.toString()
                 // load the image into the ImageView using Glide.
 
             },
