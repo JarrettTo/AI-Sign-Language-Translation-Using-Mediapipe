@@ -27,21 +27,15 @@ import android.widget.TextView
 class MainActivity : AppCompatActivity() {
     private lateinit var activityMainBinding: ActivityMainBinding
     private val viewModel: MainViewModel by viewModels()
-    val copyButton = findViewById<Button>(R.id.copyButton)
-    val textView = findViewById<TextView>(R.id.textView)
 
-    //copy function
-    private fun copyTextToClipboard(textView: TextView) {
-        val clipboardManager = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-        val clipData = ClipData.newPlainText("label", textView.text)
-        clipboardManager.setPrimaryClip(clipData)
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         activityMainBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(activityMainBinding.root)
 
+
+        //declare buttons on create
         val clearButton = findViewById<Button>(R.id.clearButton)
         val translateText = findViewById<TextView>(R.id.translateText)
 
@@ -116,14 +110,19 @@ class MainActivity : AppCompatActivity() {
                 )
             }
         }
-        fun clearText(view: View) {
-            val textView = findViewById<TextView>(R.id.translateText)
-            textView.text = ""
-        }
+    fun clearText(view: View) {
+        val textView = findViewById<TextView>(R.id.translateText)
+        textView.text = ""
+    }
+    //copy function
+    fun copyTextToClipboard(translateText: TextView) {
+        val clipboardManager = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val clipData = ClipData.newPlainText("label", translateText.text)
+        clipboardManager.setPrimaryClip(clipData)
+    }
 
 
-
-        override fun onRequestPermissionsResult(
+    override fun onRequestPermissionsResult(
             requestCode: Int,
             permissions: Array<out String>,
             grantResults: IntArray
