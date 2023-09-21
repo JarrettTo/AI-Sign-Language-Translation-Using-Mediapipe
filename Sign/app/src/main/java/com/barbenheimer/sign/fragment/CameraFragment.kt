@@ -2,65 +2,43 @@ package com.barbenheimer.sign.fragment
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.content.ContentValues
-import android.content.Context
-import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
-import android.provider.MediaStore
-import androidx.appcompat.app.AppCompatActivity
-import androidx.camera.core.ImageCapture
-import androidx.camera.video.Recorder
-import androidx.camera.video.Recording
-import androidx.camera.video.VideoCapture
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
-import com.barbenheimer.sign.databinding.FragmentCameraBinding
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
-import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.core.Preview
-import androidx.camera.core.CameraSelector
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.camera.core.AspectRatio
 import androidx.camera.core.Camera
+import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
-import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.ImageProxy
-import androidx.camera.video.FallbackStrategy
-import androidx.camera.video.MediaStoreOutputOptions
-import androidx.camera.video.Quality
-import androidx.camera.video.QualitySelector
-import androidx.camera.video.VideoRecordEvent
-import androidx.core.content.PermissionChecker
+import androidx.camera.core.Preview
+import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.navigation.Navigation
 import com.android.volley.Request
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
-import com.barbenheimer.sign.MainActivity
-import java.nio.ByteBuffer
-import java.text.SimpleDateFormat
-import java.util.Locale
 import com.barbenheimer.sign.HandLandmarkerHelper
 import com.barbenheimer.sign.MainViewModel
 import com.barbenheimer.sign.R
+import com.barbenheimer.sign.databinding.FragmentCameraBinding
 import com.google.mediapipe.tasks.vision.core.RunningMode
 import org.json.JSONArray
 import org.json.JSONObject
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
 typealias LumaListener = (luma: Double) -> Unit
 
 class CameraFragment : Fragment(), HandLandmarkerHelper.LandmarkerListener {
-
+    val mainHandler = Handler(Looper.getMainLooper())
     private lateinit var cameraExecutor: ExecutorService
 
     private var _fragmentCameraBinding: FragmentCameraBinding? = null
@@ -76,7 +54,7 @@ class CameraFragment : Fragment(), HandLandmarkerHelper.LandmarkerListener {
     private var imageAnalyzer: ImageAnalysis? = null
     private var camera: Camera? = null
     private var cameraProvider: ProcessCameraProvider? = null
-    private var cameraFacing = CameraSelector.LENS_FACING_FRONT
+    private var cameraFacing = CameraSelector.LENS_FACING_BACK
     private var poseArray : ArrayList<FloatArray> = ArrayList()
 
     override fun onResume() {
@@ -228,6 +206,7 @@ class CameraFragment : Fragment(), HandLandmarkerHelper.LandmarkerListener {
                 // The analyzer can then be assigned to the instance
                 .also {
                     it.setAnalyzer(backgroundExecutor) { image ->
+
                         detectHand(image)
                     }
                 }
@@ -298,7 +277,7 @@ class CameraFragment : Fragment(), HandLandmarkerHelper.LandmarkerListener {
 
         // Print the JSON object
         println(jsonObject.toString())
-        val url = "http://127.0.0.1:5000/pose"
+        val url = "http://119.8.189.163/pose"
         val jsonObjectRequest = JsonObjectRequest(
             // we are using GET HTTP request method
             Request.Method.POST,
@@ -372,6 +351,8 @@ class CameraFragment : Fragment(), HandLandmarkerHelper.LandmarkerListener {
             }
         }
         if(transmit){
+
+
             for (landmark in resultBundle.results){
                 for( landmarkRes in landmark.landmarks()){
                     val floatArray = FloatArray(126)
@@ -388,6 +369,21 @@ class CameraFragment : Fragment(), HandLandmarkerHelper.LandmarkerListener {
 
                 }
             }
+            if(poseArray.size==30){
+                transmit = !transmit
+                mainHandler.post{
+                    val recordButton = _fragmentCameraBinding!!.button2
+                    recordButton.text = "Record"
+                    recordButton.setBackgroundColor(
+                        ContextCompat.getColor(requireContext(), R.color.primary)
+                    )
+                }
+
+                transmitPoints()
+            }
+
+
+
         }
 
 
