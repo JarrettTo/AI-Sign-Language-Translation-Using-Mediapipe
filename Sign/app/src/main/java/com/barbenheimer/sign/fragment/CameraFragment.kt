@@ -57,6 +57,7 @@ class CameraFragment : Fragment(), HandLandmarkerHelper.LandmarkerListener {
     private var cameraProvider: ProcessCameraProvider? = null
     private var cameraFacing = CameraSelector.LENS_FACING_FRONT
     private var poseArray : ArrayList<FloatArray> = ArrayList()
+    private var translationArray : ArrayList<String> = ArrayList()
     private var translatedString: String? = null
 
 
@@ -296,8 +297,12 @@ class CameraFragment : Fragment(), HandLandmarkerHelper.LandmarkerListener {
                 val msg = response.get("pose_data")
                 //TODO: handle displaying of translations on screen
                 Log.d("RES MSG", "message: $msg")
+                if(translationArray.size>=20){
+                    translationArray.removeAt(0)
+                }
+                translationArray.add(msg.toString())
                 translatedString = msg.toString()
-                val textView = activity?.findViewById<TextView>(R.id.translation)
+                val textView = activity?.findViewById<TextView>(R.id.translationHeader)
                 textView?.text = msg.toString()
                 // load the image into the ImageView using Glide.
 
