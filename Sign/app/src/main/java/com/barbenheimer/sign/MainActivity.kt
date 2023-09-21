@@ -27,8 +27,6 @@ import android.widget.TextView
 class MainActivity : AppCompatActivity() {
     private lateinit var activityMainBinding: ActivityMainBinding
     private val viewModel: MainViewModel by viewModels()
-    val copyButton = findViewById<Button>(R.id.copyButton)
-    val textView = findViewById<TextView>(R.id.textView)
 
     //copy function
     private fun copyTextToClipboard(textView: TextView) {
@@ -43,7 +41,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(activityMainBinding.root)
 
         val clearButton = findViewById<Button>(R.id.clearButton)
-        val translateText = findViewById<TextView>(R.id.translateText)
+        val translateText = findViewById<TextView>(R.id.textView2)
 
         clearButton.setOnClickListener {
             translateText.text = ""
@@ -54,92 +52,57 @@ class MainActivity : AppCompatActivity() {
             copyTextToClipboard(translateText)
         }
 
-            val jsonObject = JSONObject()
-            jsonObject.put("data", "WOW")
-            val volleyQueue = Volley.newRequestQueue(this)
-            val url = "http://10.0.2.2:5000/pose"
-            val jsonObjectRequest = JsonObjectRequest(
-                // we are using GET HTTP request method
-                Request.Method.POST,
-                // url we want to send the HTTP request to
-                url,
-                // this parameter is used to send a JSON object
-                // to the server, since this is not required in
-                // our case, we are keeping it `null`
-                jsonObject,
 
-                // lambda function for handling the case
-                // when the HTTP request succeeds
-                { response ->
-                    // get the image url from the JSON object
-                    val msg = response.get("pose_data")
-                    //TODO: handle displaying of translations on screen
-                    Log.d("RES MSG", "message: " + msg)
-                    // load the image into the ImageView using Glide.
-
-                },
-
-                // lambda function for handling the
-                // case when the HTTP request fails
-                { error ->
-                    // make a Toast telling the user
-                    // that something went wrong
-
-                    // log the error message in the error stream
-                    Log.e("MainActivity", "loadDogImage error: ${error.message}")
-                }
+        if (ContextCompat.checkSelfPermission(
+                this,
+                android.Manifest.permission.ACCESS_NETWORK_STATE
             )
-            volleyQueue.add(jsonObjectRequest)
-            if (ContextCompat.checkSelfPermission(
-                    this,
-                    android.Manifest.permission.ACCESS_NETWORK_STATE
-                )
-                != PackageManager.PERMISSION_GRANTED
-            ) {
-                // Permission not granted, request it
-                ActivityCompat.requestPermissions(
-                    this,
-                    arrayOf(android.Manifest.permission.ACCESS_NETWORK_STATE),
-                    123
-                )
-            }
-
-            // Check for INTERNET permission
-            if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.INTERNET)
-                != PackageManager.PERMISSION_GRANTED
-            ) {
-                // Permission not granted, request it
-                ActivityCompat.requestPermissions(
-                    this,
-                    arrayOf(android.Manifest.permission.INTERNET),
-                    123
-                )
-            }
-        }
-        fun clearText(view: View) {
-            val textView = findViewById<TextView>(R.id.translateText)
-            textView.text = ""
-        }
-
-
-
-        override fun onRequestPermissionsResult(
-            requestCode: Int,
-            permissions: Array<out String>,
-            grantResults: IntArray
+            != PackageManager.PERMISSION_GRANTED
         ) {
-            super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-            if (requestCode == 123) {
-                // Check if permissions were granted
-                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // Permission granted, you can now use the permission
-                } else {
-                    // Permission denied, handle accordingly
-                }
-            }
+            // Permission not granted, request it
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(android.Manifest.permission.ACCESS_NETWORK_STATE),
+                123
+            )
         }
 
-        override fun onBackPressed() {
-            finish()
+        // Check for INTERNET permission
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.INTERNET)
+            != PackageManager.PERMISSION_GRANTED
+        ) {
+            // Permission not granted, request it
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(android.Manifest.permission.INTERNET),
+                123
+            )
         }
     }
+    fun clearText(view: View) {
+        val textView = findViewById<TextView>(R.id.textView2)
+        textView.text = ""
+    }
+
+
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == 123) {
+            // Check if permissions were granted
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission granted, you can now use the permission
+            } else {
+                // Permission denied, handle accordingly
+            }
+        }
+    }
+
+    override fun onBackPressed() {
+        finish()
+    }
+}
