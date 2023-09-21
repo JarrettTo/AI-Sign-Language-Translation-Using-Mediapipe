@@ -52,15 +52,15 @@ class MainActivity : AppCompatActivity() {
 
         if (ContextCompat.checkSelfPermission(
                 this,
-                android.Manifest.permission.ACCESS_NETWORK_STATE
+                android.Manifest.permission.CAMERA
             )
             != PackageManager.PERMISSION_GRANTED
         ) {
             // Permission not granted, request it
             ActivityCompat.requestPermissions(
                 this,
-                arrayOf(android.Manifest.permission.ACCESS_NETWORK_STATE),
-                123
+                arrayOf(android.Manifest.permission.CAMERA),
+                101
             )
         }
 
