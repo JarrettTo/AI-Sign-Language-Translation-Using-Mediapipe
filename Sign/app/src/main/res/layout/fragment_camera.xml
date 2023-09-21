@@ -2,12 +2,16 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/camera_container"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="300dp">
 
     <androidx.camera.view.PreviewView
         android:id="@+id/viewFinder"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:clipToPadding="true"
+        app:scaleType="fillStart">
+
+    </androidx.camera.view.PreviewView>
 
     <com.barbenheimer.sign.OverlayView
         android:id="@+id/overlay"
