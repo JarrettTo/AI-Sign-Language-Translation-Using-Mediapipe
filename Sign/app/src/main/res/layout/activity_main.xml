@@ -56,10 +56,12 @@
                     style="@style/Widget.Material3.Button.IconButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginEnd="16dp"
                     android:contentDescription="@string/clear"
                     app:icon="@drawable/backspace"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent" />
+                    app:layout_constraintBottom_toBottomOf="@+id/translationHeader"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/translationHeader" />
 
                 <Button
                     android:id="@+id/copyButton"
@@ -69,8 +71,9 @@
                     android:layout_marginEnd="8dp"
                     android:contentDescription="@string/copy"
                     app:icon="@drawable/content_copy"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@+id/clearButton" />
+                    app:layout_constraintBottom_toBottomOf="@+id/translationHeader"
+                    app:layout_constraintEnd_toStartOf="@+id/clearButton"
+                    app:layout_constraintTop_toTopOf="@+id/translationHeader" />
 
                 <TextView
                     android:id="@+id/translationHeader"
@@ -98,7 +101,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="24dp"
                     android:layout_marginTop="8dp"
-                    android:text="@string/init_tranlsate_box_text"
+                    android:text="@string/init_translate_box_text"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
             </androidx.constraintlayout.widget.ConstraintLayout>
@@ -120,6 +123,20 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/button3"
+        style="@style/Widget.Material3.Button.IconButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:contentDescription="@string/history"
+        android:scaleX="1.5"
+        android:scaleY="1.5"
+        app:icon="@drawable/history"
+        app:layout_constraintBottom_toBottomOf="@+id/button"
+        app:layout_constraintStart_toEndOf="@+id/button"
+        app:layout_constraintTop_toTopOf="@+id/button" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/vertical_centerline"
