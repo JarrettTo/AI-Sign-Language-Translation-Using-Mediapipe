@@ -13,6 +13,7 @@ import com.barbenheimer.sign.databinding.ActivityMainBinding
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.content.Intent
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
@@ -30,6 +31,7 @@ class MainActivity : AppCompatActivity() {
 
 
         //declare buttons on create
+        val historyButton = findViewById<Button>(R.id.history_button)
         val clearButton = findViewById<Button>(R.id.clearButton)
         val translateText = findViewById<TextView>(R.id.translationText)
 
@@ -40,6 +42,10 @@ class MainActivity : AppCompatActivity() {
 
         copyButton.setOnClickListener {
             copyTextToClipboard(translateText)
+        }
+
+        historyButton.setOnClickListener {
+            openHistoryActivity()
         }
 
 
@@ -79,6 +85,11 @@ class MainActivity : AppCompatActivity() {
         val clipboardManager = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         val clipData = ClipData.newPlainText("label", translateText.text)
         clipboardManager.setPrimaryClip(clipData)
+    }
+
+    fun openHistoryActivity() {
+        val intent = Intent(this, HistoryActivity::class.java)
+        startActivity(intent)
     }
 
 
